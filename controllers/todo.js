@@ -27,6 +27,16 @@ exports.deleteTodo = (req, res) => {
     });
 }
 
+exports.deleteCompletedTodo = (req, res) => {
+    Todo.deleteMany({completed : req.body.deleteMany[0].completed}, function(err) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("Deleted Completed Todos");
+        }
+    });
+}
+
 exports.editTodo = (req, res) => {
     Todo.findByIdAndUpdate({_id: req.params.id},
         {completed: req.body.completed},
