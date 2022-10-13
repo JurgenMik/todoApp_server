@@ -1,50 +1,40 @@
 const Todo = require('../models/todo');
 
-exports.getTodo = (req, res) => {
-    const todos = Todo.find()
-        .then(todos => {
-            res.json({todos});
-        })
-        .catch(err => console.log(err));
+exports.getTodo = async (req, res) => {
+   const todos = await Todo.find({})
+   res.status(200).json({ todos })
 };
 
-exports.createTodo = (req, res) => {
-    const todo = new Todo(req.body);
-    todo.save().then(result => {
-        res.json({
-            todo: result
-        });
-    });
+exports.createTodo = async (req, res) => {
+   const todo = await Todo.create(req.body)
+    res.status(201).json({ todo })
 };
 
-exports.deleteTodo = (req, res) => {
-    Todo.findByIdAndRemove({_id: req.params.id}, function(err) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log("Deleted document");
-        }
-    });
+exports.deleteTodo = async (req, res) => {
+   const { id: todoID } = req.params
+   const todo = await Todo.findOneAndDelete({ _id: todoID })
+   if (!todo) {
+       console.log(`No todo with id: ${todoID}`)
+   }
+   res.status(200).json({ todo })
 }
 
 exports.deleteCompletedTodo = (req, res) => {
-    Todo.deleteMany({completed : req.body.deleteMany[0].completed}, function(err) {
+   Todo.deleteMany({completed : req.body.deleteMany[0].completed},
+       function(err) {
         if (err) {
             console.log(err);
-        } else {
-            console.log("Deleted Completed Todos");
         }
     });
 }
 
-exports.editTodo = (req, res) => {
-    Todo.findByIdAndUpdate({_id: req.params.id},
-        {completed: req.body.completed},
-        {new: true})
-        .exec()
-        .then((response) => {
-            res.json({
-                editedTodo: response
-            });
-        });
+exports.editTodo = async (req, res) => {
+    const { id: todoID } = req.params
+    const todo = await Todo.findOneAndUpdate({ _id: todoID}, req.body, {
+        new : true,
+    })
+    if (!todo) {
+        console.log(`No todo with id : ${todoID}`)
+    }
+    res.status(200).json({ todo })
 }
